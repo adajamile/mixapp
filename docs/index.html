@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Mix A(20 dB) + B(65 dB)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h1>Mix com normalização LUFS (A=20 dB, B=65 dB)</h1>
+  <p>Site publicado via GitHub Pages. Depois vamos apontar para o backend (Render).</p>
+
+  <div>
+    <label>A (20 dB): <input id="fileA" type="file" accept="audio/*" /></label>
+  </div>
+  <div>
+    <label>B (65 dB): <input id="fileB" type="file" accept="audio/*" /></label>
+  </div>
+  <button id="normalizeBtn">Normalizar A e B</button>
+  <p id="status"></p>
+
+  <audio id="audioA" controls></audio>
+  <audio id="audioB" controls></audio>
+
+  <script>
+    // 👉 trocaremos depois para sua URL da Render
+    const API = "http://127.0.0.1:8000";
+
+    const els = {
+      fileA: document.getElementById('fileA'),
+      fileB: document.getElementById('fileB'),
+      normalizeBtn: document.getElementById('normalizeBtn'),
+      status: document.getElementById('status'),
+      audioA: document.getElementById('audioA'),
+      audioB: document.getElementById('audioB'),
+    };
+
+    async function normalizeOne(file, target_lufs){
+      const fd = new FormData();
+      fd.append("target_lufs", String(target_lufs));
+      fd.append("out_ext", "mp3");
+      fd.append("file", file);
+      const r = await fetch(`${API}/normalize`, { method: "POST", body: fd });
+      if (!r.ok) throw new Error(await r.text());
+      return await r.json();
+    }
+
+    els.normalizeBtn.onclick = async () => {
+      const A = els.fileA.files[0], B = els.fileB.files[0];
+      if(!A || !B){ els.status.textContent = "Selecione dois arquivos (A e B)."; return; }
+      els.status.textContent = "Normalizando…";
+      try{
+        const Bref = -16;           // alvo de B
+        const Atgt = Bref - 45;     // A = B - 45 dB
+        const [ra, rb] = await Promise.all([normalizeOne(A, Atgt), normalizeOne(B, Bref)]);
+        els.audioA.src = `${API}${ra.public_url}`;
+        els.audioB.src = `${API}${rb.public_url}`;
+        els.status.textContent = "Pronto!";
+      }catch(e){
+        els.status.textContent = "Erro: " + e.message.slice(0,200);
+      }
+    };
+  </script>
+</body>
+</html>
