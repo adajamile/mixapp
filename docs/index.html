@@ -15,6 +15,16 @@
     html,body{margin:0;background:#0b1220;color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial}
     .wrap{max-width:1024px;margin:0 auto;padding:22px}
 
+    /* cards de playlist */
+    .pp-group{margin-bottom:10px}
+    .pp-title{font-weight:700;margin:4px 0 6px}
+    .pp-tracks{display:grid;gap:8px}
+    .pp-item{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:#0f1627;cursor:pointer}
+    .pp-item:hover{border-color:rgba(255,255,255,.25)}
+    .pp-item .name{flex:1}
+    .pp-item .len{opacity:.8;font-size:.9rem}
+    .pp-item.active{outline:2px solid var(--accent); background:linear-gradient(135deg,rgba(110,168,254,.12),rgba(167,139,250,.12))}
+
     /* Header (Opção B) */
     .header{display:flex;align-items:center;gap:12px;padding:8px 0 6px}
     .brand{display:inline-grid;place-items:center;text-decoration:none}
@@ -100,9 +110,11 @@
 
       <div class="grid two">
         <div>
-          <label>Música (link direto .mp3/.wav)</label>
-          <input id="urlA" type="text" placeholder="https://seu-arquivo.mp3" />
-          <p class="muted">Dica: se o arquivo estiver no GitHub, use o botão <i>Raw</i> para obter o link direto.</p>
+          <label>Músicas do Projeto (selecione)</label>
+          <div id="playlistPicker" class="card" style="padding:10px">
+            <!-- JS renderiza aqui -->
+          </div>
+          <p class="muted">As faixas são hospedadas em <code>assets/musicas/</code>.</p>
         </div>
 
         <!-- Onda Binaural travada -->
@@ -155,7 +167,11 @@
     <!-- SPOTIFY -->
     <section id="spotify" class="card">
       <h2 style="margin-top:0">Playlist do Spotify</h2>
-      <p class="muted">Cole a URL da playlist para visualizar no player oficial. A importação de prévias (30s) estará disponível em breve.</p>
+      <p class="muted">
+        Cole a URL da playlist para visualizar no player oficial.
+        Observação: o volume do player do Spotify é controlado pelo próprio Spotify/OS.
+        Em breve: importação de prévias de 30s com volume inicial em 16%.
+      </p>
 
       <div class="grid two">
         <div>
@@ -215,6 +231,19 @@
   <audio id="audioB" crossorigin="anonymous"></audio>
 
   <script>
+    // === CATÁLOGO DE PLAYLISTS LOCAIS (com espaços/acentos) ===
+    const PLAYLISTS = [
+      {
+        title: "Playlists do Projeto",
+        tracks: [
+          { name: "Hits 2000–2010", url: "assets/musicas/2010-2000s%20playlist.mp3", len: "≈45 min" },
+          { name: "Arctic Monkeys", url: "assets/musicas/arctic%20monkeys%20playlist.mp3", len: "≈40 min" },
+          { name: "Músicas do Brasil", url: "assets/musicas/m%C3%BAsicas%20do%20brasil%20playlist.mp3", len: "≈50 min" },
+          { name: "Rock Romântico", url: "assets/musicas/rock%20rom%C3%A2ntico%20playlist.mp3", len: "≈42 min" },
+        ]
+      }
+    ];
+
     // === CONFIGS ===
     const API = "http://127.0.0.1:8000";           // troque pela URL da Render quando publicar
     const B_REF = -16.0, DELTA_DB = 45.0;          // alvos LUFS (B = -16; A = -61)
@@ -222,7 +251,6 @@
 
     // Elementos
     const els = {
-      urlA: document.getElementById('urlA'),
       normalizeBtn: document.getElementById('normalizeBtn'),
       binauralOnlyBtn: document.getElementById('binauralOnlyBtn'),
       normStatus: document.getElementById('normStatus'),
@@ -245,6 +273,30 @@
       spHint: document.getElementById('spHint'),
     };
 
+    // playlist picker
+    let selectedUrlA = "";
+    function renderPlaylistPicker(){
+      const host = document.getElementById('playlistPicker');
+      host.innerHTML = "";
+      PLAYLISTS.forEach((pl, gi)=>{
+        const group = document.createElement('div'); group.className = "pp-group";
+        const title = document.createElement('div'); title.className = "pp-title"; title.textContent = pl.title;
+        const list = document.createElement('div'); list.className = "pp-tracks";
+        pl.tracks.forEach((t, ti)=>{
+          const row = document.createElement('div'); row.className = "pp-item"; row.dataset.g = gi; row.dataset.t = ti;
+          row.innerHTML = `<div class="name">${t.name}</div><div class="len">${t.len||""}</div>`;
+          row.addEventListener('click', ()=>{
+            host.querySelectorAll(".pp-item").forEach(i=>i.classList.remove("active"));
+            row.classList.add("active");
+            selectedUrlA = t.url;
+          });
+          list.appendChild(row);
+        });
+        group.appendChild(title); group.appendChild(list);
+        host.appendChild(group);
+      });
+    }
+
     // WebAudio graph
     let ctx, srcA, srcB, gainA, gainB, comp, rafId=null;
     function ensureCtx(){ if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); }
@@ -255,8 +307,12 @@
       if (!srcB) srcB = ctx.createMediaElementSource(els.audioB);
       if (!gainA) gainA = ctx.createGain();
       if (!gainB) gainB = ctx.createGain();
-      gainA.gain.value = els.toggles.A.classList.contains('on') ? 1 : 0;
-      gainB.gain.value = els.toggles.B.classList.contains('on') ? 1 : 0;
+
+      // Volume base do nosso mini-player (não afeta o iframe do Spotify)
+      const BASE_VOL = 0.16;
+      gainA.gain.value = (els.toggles.A.classList.contains('on') ? 1 : 0) * BASE_VOL;
+      gainB.gain.value = (els.toggles.B.classList.contains('on') ? 1 : 0) * BASE_VOL;
+
       comp = ctx.createDynamicsCompressor();
       comp.threshold.value = -3; comp.ratio.value = 3; comp.attack.value=.01; comp.release.value=.25;
       srcA.connect(gainA).connect(comp); srcB.connect(gainB).connect(comp);
@@ -284,17 +340,16 @@
     function setState(s){ els.stateView.textContent = s; }
 
     async function normalizeBoth(){
-      const urlA = els.urlA.value.trim();
-      if(!urlA){ showErr("Informe o link .mp3/.wav da Música."); return; }
-      const isYT = (u)=>/youtube\.com|youtu\.be/.test(u);
-      if(isYT(urlA)){ showErr("YouTube/Spotify completos não funcionam. Use link direto de áudio."); return; }
+      const urlA = selectedUrlA?.trim?.() || "";
+      if(!urlA){ showErr("Escolha uma faixa nas playlists do Projeto."); return; }
 
-      const absB = new URL(BINAURAL_SRC, location.href).href; // onda fixa absoluta
+      const absA = new URL(urlA, location.href).href;
+      const absB = new URL(BINAURAL_SRC, location.href).href;
 
       els.normStatus.textContent = "Processando…";
       try{
         const [ra, rb] = await Promise.all([
-          normalizeURL(urlA, B_REF - DELTA_DB), // Música alvo -61 LUFS
+          normalizeURL(absA, B_REF - DELTA_DB), // Música alvo -61 LUFS
           normalizeURL(absB, B_REF),            // Onda alvo -16 LUFS
         ]);
         els.audioA.src = `${API}${ra.public_url}`;
@@ -314,12 +369,14 @@
     function seekAll(sec){ sec=Math.max(0,Number(sec)||0); els.audioA.currentTime=sec; els.audioB.currentTime=sec; }
 
     // alternadores
-    function toggle(el){ el.classList.toggle('on'); if(!ctx) return;
-      if(el===els.toggles.A) gainA.gain.value = el.classList.contains('on')?1:0;
-      if(el===els.toggles.B) gainB.gain.value = el.classList.contains('on')?1:0;
+    function toggle(el){
+      el.classList.toggle('on'); if(!ctx) return;
+      const BASE_VOL = 0.16;
+      if(el===els.toggles.A) gainA.gain.value = (el.classList.contains('on')?1:0) * BASE_VOL;
+      if(el===els.toggles.B) gainB.gain.value = (el.classList.contains('on')?1:0) * BASE_VOL;
     }
 
-    // --- Spotify ---
+    // Spotify (somente embed)
     function parsePlaylistId(u){
       try{
         const url = new URL(u);
@@ -353,9 +410,7 @@
 
     // Pontinhos
     const dots = [...document.querySelectorAll('.dot')];
-    dots.forEach(d=>d.addEventListener('click',()=>{
-      document.querySelector(d.dataset.target)?.scrollIntoView({behavior:'smooth'});
-    }));
+    dots.forEach(d=>d.addEventListener('click',()=>{ document.querySelector(d.dataset.target)?.scrollIntoView({behavior:'smooth'}); }));
     const obs = new IntersectionObserver((entries)=>{
       entries.forEach(e=>{
         if(e.isIntersecting){
@@ -387,11 +442,11 @@
       fig.appendChild(img); fig.appendChild(cap); gal.appendChild(fig);
     });
 
-    // Pré-carregar a onda para “um clique tocar”
+    // Inicialização
     window.addEventListener("load", ()=>{
       els.audioB.src = BINAURAL_SRC;
       buildGraph();
-      // autoplay pode ser bloqueado; o botão "Ouvir Onda" e o "Play" resolvem com um toque
+      renderPlaylistPicker();
     });
   </script>
 </body>
