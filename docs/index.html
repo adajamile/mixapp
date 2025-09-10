@@ -98,7 +98,7 @@
         <h1>Projeto MeMO</h1>
         <p class="sub">
           Bem-vindo ao site do <b>Projeto MeMO</b>! Aqui você encontra informações sobre nossa pesquisa,
-          pode explorar a <b>Onda Binaural</b> já disponível, misturar com <b>Músicas</b>, acessar playlists do Spotify
+          pode explorar a <b>Onda Binaural</b> já disponível, misturar com <b>músicas</b>, acessar playlists do Spotify
           e conhecer mais sobre o projeto e sua equipe.
         </p>
       </div>
@@ -211,9 +211,10 @@
     <section id="binaural" class="card">
       <h2 style="margin-top:0">O que são Ondas Binaurais?</h2>
       <p class="muted">
-        São uma ilusão auditiva: cada ouvido recebe uma frequência ligeiramente diferente e o cérebro percebe a diferença entre elas.
-        Diferentes faixas (delta, theta, alpha, beta) são estudadas por possíveis efeitos como relaxamento ou foco. O uso é opcional e consciente.
-      </p>
+  Ondas binaurais são um efeito auditivo: cada ouvido recebe uma frequência levemente diferente e o cérebro interpreta a diferença como uma <b>batida rítmica</b>.  
+  Estudos exploram como faixas específicas — <b>delta</b> (sono profundo), <b>theta</b> (relaxamento), <b>alpha</b> (calma e foco) e <b>beta</b> (atenção ativa) — podem influenciar o humor, a concentração ou o relaxamento.  
+  Seu uso é <b>simples, opcional e consciente</b>.
+</p>
     </section>
 
     <!-- GALERIA -->
@@ -231,15 +232,15 @@
   <audio id="audioB" crossorigin="anonymous"></audio>
 
   <script>
-    // === CATÁLOGO DE PLAYLISTS LOCAIS (com espaços/acentos) ===
+    // === CATÁLOGO DE PLAYLISTS LOCAIS (nomes sem espaço/acentos) ===
     const PLAYLISTS = [
       {
         title: "Playlists do Projeto",
         tracks: [
-          { name: "Hits 2000–2010", url: "assets/musicas/2010-2000s%20playlist.mp3", len: "≈45 min" },
-          { name: "Arctic Monkeys", url: "assets/musicas/arctic%20monkeys%20playlist.mp3", len: "≈40 min" },
-          { name: "Músicas do Brasil", url: "assets/musicas/m%C3%BAsicas%20do%20brasil%20playlist.mp3", len: "≈50 min" },
-          { name: "Rock Romântico", url: "assets/musicas/rock%20rom%C3%A2ntico%20playlist.mp3", len: "≈42 min" },
+          { name: "Hits 2000–2010",   url: "assets/musicas/2010-2000s_playlist.mp3",        len: "≈45 min" },
+          { name: "Arctic Monkeys",   url: "assets/musicas/arctic_monkeys_playlist.mp3",    len: "≈40 min" },
+          { name: "Músicas do Brasil",url: "assets/musicas/musicas_do_brasil_playlist.mp3", len: "≈50 min" },
+          { name: "Rock Romântico",   url: "assets/musicas/rock_romantico_playlist.mp3",    len: "≈42 min" },
         ]
       }
     ];
