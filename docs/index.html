@@ -6,134 +6,204 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      --bg:#0b1220; --card:#121a2b; --muted:#8ea0c0; --text:#eaf0ff; --accent:#6ea8fe; --accent2:#a78bfa; --ok:#34d399; --err:#f87171;
-      --radius:16px;
+      --bg:#0b1220; --card:#121a2b; --muted:#9fb0cf; --text:#eaf0ff;
+      --accent:#6ea8fe; --accent2:#a78bfa; --ok:#34d399; --err:#f87171;
+      --radius:16px; --shadow: 0 10px 30px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh; color:var(--text);
-      background: radial-gradient(1200px 800px at 20% -10%, #1d2a44 0%, #0b1220 60%),
-                  radial-gradient(1000px 600px at 100% 10%, #2a1d44 0%, #0b1220 60%);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    }
-    .wrap{max-width:980px; margin:48px auto; padding:0 16px;}
-    .hero{display:flex; gap:16px; align-items:center; margin-bottom:20px}
+    html,body{margin:0;background:#0b1220;color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial}
+    .wrap{max-width:1024px;margin:0 auto;padding:20px}
+    header{display:flex;align-items:center;gap:12px;padding:16px 0}
     .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;color:#0b1220}
     h1{margin:0;font-size:28px}
-    p.sub{margin:6px 0 0;color:var(--muted)}
-    .card{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); padding:16px; margin:14px 0; backdrop-filter: blur(6px);}
-    .row{display:flex; gap:14px; flex-wrap:wrap}
-    .col{flex:1 1 300px; min-width:280px}
-    label{display:block; font-weight:600; margin-bottom:6px}
-    input[type="text"]{
-      width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.15);
-      background:#0f1627; color:var(--text); outline:none;
-    }
-    input::placeholder{color:#9bb0d1}
-    .hint{color:var(--muted); font-size:.9rem; margin-top:6px}
-    .btn{
-      appearance:none; border:1px solid transparent; border-radius:12px; padding:10px 14px; cursor:pointer; font-weight:600;
-      background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0b1220;
-    }
-    .btn.secondary{background:transparent; color:var(--text); border-color:rgba(255,255,255,.2)}
-    .btn.ghost{background:transparent; color:var(--muted); border-color:transparent}
-    .kpi{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.92rem; color:#bcd0f0}
-    .state{font-size:.92rem}
+    p.sub{margin:4px 0 0;color:var(--muted)}
+    .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(4px)}
+    .grid{display:grid;gap:14px}
+    .two{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    input[type="text"],input[type="number"]{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:#0f1627;color:var(--text)}
+    input::placeholder{color:#a8b7d3}
+    .btn{appearance:none;border:1px solid transparent;border-radius:12px;padding:10px 14px;cursor:pointer;font-weight:600;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b1220}
+    .btn.secondary{background:transparent;color:var(--text);border-color:rgba(255,255,255,.25)}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+    .muted{color:var(--muted);font-size:.95rem}
     .ok{color:var(--ok)} .err{color:var(--err)}
-    .tog{display:flex; gap:10px; align-items:center; margin-top:8px}
-    .switch{position:relative;width:50px;height:28px;background:#1d2a3a;border-radius:999px;border:1px solid rgba(255,255,255,.15);cursor:pointer}
-    .switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.18s;}
+    .tog{display:flex;align-items:center;gap:10px;margin-top:8px}
+    .switch{position:relative;width:52px;height:30px;background:#1b253b;border-radius:999px;border:1px solid rgba(255,255,255,.15);cursor:pointer}
+    .switch::after{content:"";position:absolute;top:2px;left:2px;width:26px;height:26px;background:#fff;border-radius:50%;transition:.18s}
     .switch.on{background:linear-gradient(135deg,var(--accent),var(--accent2))}
     .switch.on::after{left:24px}
-    .controls{display:flex; gap:10px; flex-wrap:wrap}
-    .controls .btn{min-width:84px}
-    .seek{display:flex; align-items:center; gap:8px}
-    input[type="number"]{width:110px; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,.2); background:#0f1627; color:var(--text)}
-    .footer{color:#92a7c9; font-size:.9rem; text-align:center; margin-top:10px}
-    a{color:#9fc1ff}
+    .controls{display:flex;gap:10px;flex-wrap:wrap}
+    .controls .btn{min-width:88px}
+    .seek{display:flex;align-items:center;gap:8px}
+    footer{color:#9fb0cf;text-align:center;padding:18px 0}
+    /* nav pontos */
+    .navdots{position:fixed;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:50}
+    .dot{width:12px;height:12px;border-radius:50%;background:#3a4461;border:2px solid #7084b3;cursor:pointer;transition:.2s}
+    .dot.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:#cdd9ff}
+    section{scroll-margin-top:80px}
+    .hero{display:flex;gap:14px;align-items:center;margin:6px 0 14px}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    figure{margin:0}
+    figure img{width:100%;height:170px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.1)}
+    figcaption{font-size:.9rem;color:#cfe0ff;margin-top:6px}
+    .step{display:flex;gap:10px;align-items:flex-start}
+    .step .n{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b1220;display:grid;place-items:center;font-weight:800;margin-top:2px}
+    .kpi{font-family:ui-monospace,Menlo,Consolas,monospace;color:#cfe0ff}
+    .embedBox{aspect-ratio:16/9;width:100%;background:#0f1627;border:1px solid rgba(255,255,255,.12);border-radius:12px;display:grid;place-items:center;overflow:hidden}
+    .embedBox iframe{width:100%;height:100%;border:0}
   </style>
 </head>
 <body>
+  <!-- Navegação por pontos -->
+  <div class="navdots">
+    <div class="dot active" data-target="#proto" title="Protótipo"></div>
+    <div class="dot" data-target="#spotify" title="Playlist do Spotify"></div>
+    <div class="dot" data-target="#sobre" title="O que é o projeto"></div>
+    <div class="dot" data-target="#patro" title="Patrocinadores"></div>
+    <div class="dot" data-target="#binaural" title="Ondas binaurais"></div>
+    <div class="dot" data-target="#galeria" title="Galeria"></div>
+  </div>
+
   <div class="wrap">
-    <div class="hero">
-      <div class="logo">PM</div>
+    <header>
+      <img src="assets/logo-memo.png" alt="Logo Projeto Memo" class="logo" onerror="this.style.display='none'">
       <div>
         <h1>Projeto Memo</h1>
-        <p class="sub">Misture <b>Onda Binaural</b> (fixo) com <b>Música</b> em volumes-alvo (LUFS). Player único.</p>
+        <p class="sub">Misture <b>Onda Binaural</b> (fixa) com <b>Música</b> em player único — com guias, Spotify e galeria.</p>
       </div>
-    </div>
+    </header>
 
-    <div class="card">
-      <h3 style="margin:4px 0 10px">Fontes</h3>
-      <div class="row">
-        <div class="col">
-          <label>Música (link de áudio direto)</label>
+    <!-- SEÇÃO: Protótipo -->
+    <section id="proto" class="card">
+      <div class="hero"><h2 style="margin:0">Protótipo (player único)</h2></div>
+
+      <div class="grid two">
+        <div>
+          <label>Link da Música (áudio direto .mp3/.wav)</label>
           <input id="urlA" type="text" placeholder="https://exemplo.com/musica.mp3" />
-          <div class="hint">YouTube <b>não funciona</b>. Use um link <code>.mp3/.wav</code> direto (pode ser o “raw” do seu GitHub).</div>
+          <p class="muted">YouTube/Spotify completos não funcionam para mix. Use link direto ou arquivo hospedado no seu GitHub (<i>Raw</i>).</p>
         </div>
-        <div class="col">
-          <label>Onda Binaural (link fixo de áudio direto)</label>
-          <input id="urlB" type="text" placeholder="https://exemplo.com/onda.mp3" />
-          <div class="hint">Este é o trilho “mais alto”. Será a referência de loudness (padrão −16 LUFS).</div>
+        <div>
+          <label>Onda Binaural (já anexada ao site)</label>
+          <input id="urlB" type="text" value="assets/audio_binauralbeat.mp3" />
+          <p class="muted">Campo já preenchido com o seu arquivo fixo.</p>
         </div>
       </div>
-      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
-        <button id="normalizeBtn" class="btn">Normalizar & Carregar</button>
-        <span id="normStatus" class="state"></span>
-      </div>
-      <div class="kpi" id="targetsView" style="margin-top:8px">B_target=-16.0 LUFS · A_target=-61.0 LUFS</div>
-    </div>
 
-    <div class="card">
-      <h3 style="margin:4px 0 10px">Player</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <button id="normalizeBtn" class="btn">Carregar e preparar trilhas</button>
+        <span id="normStatus" class="muted"></span>
+      </div>
+      <div class="kpi" id="targetsView" style="margin-top:6px">B = −16.0 LUFS · Música = −61.0 LUFS</div>
+
+      <hr style="border-color:rgba(255,255,255,.1);margin:14px 0">
+
       <div class="controls">
         <button id="playBtn" class="btn">▶ Play</button>
         <button id="pauseBtn" class="btn secondary">⏸ Pause</button>
         <button id="stopBtn" class="btn secondary">⏹ Stop</button>
         <div class="seek">
-          <label for="seekSec" class="hint">Ir para (s)</label>
+          <label for="seekSec" class="muted">Ir para (s)</label>
           <input id="seekSec" type="number" value="0" step="1" />
           <button id="seekBtn" class="btn secondary">Ir</button>
         </div>
       </div>
 
-      <div class="row" style="margin-top:12px">
-        <div class="col">
-          <div class="tog">
-            <div>Música</div>
-            <div id="togA" class="switch on" title="ativar/desativar Música"></div>
-          </div>
-          <div class="hint">Ativa/Desativa a trilha normalizada da Música.</div>
+      <div class="grid two" style="margin-top:12px">
+        <div class="tog">
+          <div>Música</div>
+          <div id="togA" class="switch on" title="Ativar/Desativar Música"></div>
         </div>
-        <div class="col">
-          <div class="tog">
-            <div>Onda Binaural</div>
-            <div id="togB" class="switch on" title="ativar/desativar Onda Binaural"></div>
-          </div>
-          <div class="hint">Ativa/Desativa a trilha normalizada da Onda.</div>
+        <div class="tog">
+          <div>Onda Binaural</div>
+          <div id="togB" class="switch on" title="Ativar/Desativar Onda"></div>
         </div>
       </div>
 
-      <div class="hint" style="margin-top:10px">
+      <p class="muted" style="margin-top:10px">
         Tempo: <span id="timeView">0.00</span>s · Estado: <span id="stateView">idle</span>
+      </p>
+      <p class="muted">Guia rápido:</p>
+      <div class="grid">
+        <div class="step"><div class="n">1</div><div>O arquivo <b>audio_binauralbeat.mp3</b> já está em <code>docs/assets/</code>.</div></div>
+        <div class="step"><div class="n">2</div><div>Cole um <b>link direto</b> da Música (.mp3/.wav). Se for do próprio GitHub, use o botão <b>Raw</b>.</div></div>
+        <div class="step"><div class="n">3</div><div>Clique <b>Carregar e preparar trilhas</b> e depois <b>Play</b>. Use os botões para ligar/desligar cada trilha.</div></div>
       </div>
-      <div class="hint">Dica: sempre clique <b>Play</b> em celulares (autoplay é bloqueado).</div>
-    </div>
+    </section>
 
-    <p class="footer">Feito com 💙 para o Projeto Memo. Normalização por LUFS no servidor (ffmpeg/loudnorm).</p>
+    <!-- SEÇÃO: Spotify -->
+    <section id="spotify" class="card" style="margin-top:16px">
+      <h2 style="margin-top:0">Playlist do Spotify (embed + prévias 30s)</h2>
+      <p class="muted">Cole a URL da playlist. Você pode <b>ver e ouvir</b> pelo player oficial abaixo. Para <b>importar as prévias (30s)</b> e misturar com a Onda, ative depois que publicar o backend.</p>
+
+      <div class="grid two">
+        <div>
+          <label>URL da playlist do Spotify</label>
+          <input id="spUrl" type="text" placeholder="https://open.spotify.com/playlist/..." />
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <button id="spShowBtn" class="btn">Mostrar playlist</button>
+          <button id="spImportBtn" class="btn secondary" title="Ative após publicar o backend">Importar prévias (30s)</button>
+        </div>
+      </div>
+
+      <div class="embedBox" style="margin-top:12px"><iframe id="spEmbed" allow="encrypted-media"></iframe></div>
+
+      <div id="spList" class="grid" style="margin-top:12px"></div>
+      <p class="muted" id="spHint">Dica: ‘Importar prévias (30s)’ fica desabilitado até você ligar o backend.</p>
+    </section>
+
+    <!-- SEÇÃO: O que é o Projeto -->
+    <section id="sobre" class="card" style="margin-top:16px">
+      <h2 style="margin-top:0">O que é o Projeto Memo</h2>
+      <p class="muted">
+        Iniciativa estudantil focada em investigação e prototipagem de estímulos auditivos (ondas binaurais) combinados a trilhas musicais,
+        com potencial de apoio a estudos de atenção e memória. Esta página demonstra o protótipo web.
+      </p>
+    </section>
+
+    <!-- SEÇÃO: Patrocinadores -->
+    <section id="patro" class="card" style="margin-top:16px">
+      <h2 style="margin-top:0">Apoio e Patrocinadores</h2>
+      <p class="muted">Obrigado a todos que apoiam o Projeto Memo.</p>
+      <img src="assets/fotos/memo instituições de apoio.png" alt="Apoiadores" style="max-width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.1)" onerror="this.style.display='none'">
+    </section>
+
+    <!-- SEÇÃO: Ondas Binaurais -->
+    <section id="binaural" class="card" style="margin-top:16px">
+      <h2 style="margin-top:0">O que são Ondas Binaurais?</h2>
+      <p class="muted">
+        Ondas binaurais são uma ilusão auditiva: cada ouvido recebe uma frequência ligeiramente diferente, e o cérebro percebe a diferença.
+        Dependendo da faixa (delta, theta, alpha, beta), estudos exploram efeitos como relaxamento ou foco. O uso deve ser consciente e opcional.
+      </p>
+    </section>
+
+    <!-- SEÇÃO: Galeria -->
+    <section id="galeria" class="card" style="margin-top:16px">
+      <h2 style="margin-top:0">Galeria</h2>
+      <div class="gallery" id="gallery"></div>
+      <p class="muted">As imagens são carregadas de <code>docs/assets/fotos/</code>.</p>
+    </section>
+
+    <footer>Feito com 💙 pelo Projeto Memo</footer>
   </div>
 
-  <!-- elementos de áudio não visíveis -->
+  <!-- players invisíveis -->
   <audio id="audioA" crossorigin="anonymous"></audio>
   <audio id="audioB" crossorigin="anonymous"></audio>
 
   <script>
-    // Troque depois pela URL pública da Render:
-    const API = "http://127.0.0.1:8000"; // ex.: "https://lufs-backend-xxxx.onrender.com"
+    // === CONFIGS ===
+    // API local por enquanto; depois troque para a URL pública da Render:
+    const API = "http://127.0.0.1:8000"; // ex.: "https://memo-backend.onrender.com"
+    // Quando publicar o backend, mude para true para habilitar "Importar prévias (30s)"
+    const BACKEND_READY = false;
 
-    // Alvos de loudness (padrão): B = -16 LUFS; A = B - 45 = -61 LUFS
+    // Alvos de loudness: B (Onda) = -16 LUFS; Música = B - 45 = -61 LUFS
     const B_REF = -16.0, DELTA_DB = 45.0;
 
+    // Elementos
     const els = {
       urlA: document.getElementById('urlA'),
       urlB: document.getElementById('urlB'),
@@ -150,16 +220,23 @@
       audioA: document.getElementById('audioA'),
       audioB: document.getElementById('audioB'),
       targetsView: document.getElementById('targetsView'),
+      gallery: document.getElementById('gallery'),
+      spUrl: document.getElementById('spUrl'),
+      spShowBtn: document.getElementById('spShowBtn'),
+      spImportBtn: document.getElementById('spImportBtn'),
+      spEmbed: document.getElementById('spEmbed'),
+      spList: document.getElementById('spList'),
+      spHint: document.getElementById('spHint'),
     };
 
-    // Mostra alvos
-    els.targetsView.textContent = `B_target=${B_REF.toFixed(1)} LUFS · A_target=${(B_REF - DELTA_DB).toFixed(1)} LUFS`;
+    // Estado inicial do botão de prévias
+    els.spImportBtn.disabled = !BACKEND_READY;
+    if (!BACKEND_READY) els.spHint.innerHTML = "Para importar prévias de 30s, publique o backend e mude <code>BACKEND_READY = true</code> aqui no index.";
 
-    function setState(s){ els.stateView.textContent = s; }
-    function toastOk(msg){ els.normStatus.innerHTML = `<span class="ok">${msg}</span>`; }
-    function toastErr(msg){ els.normStatus.innerHTML = `<span class="err">${msg}</span>`; }
+    // Mostrar alvos
+    els.targetsView.textContent = `B = ${B_REF.toFixed(1)} LUFS · Música = ${(B_REF-DELTA_DB).toFixed(1)} LUFS`;
 
-    // Web Audio (um grafo com 2 fontes)
+    // WebAudio graph
     let ctx, srcA, srcB, gainA, gainB, comp, rafId=null;
     function ensureCtx(){ if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); }
     function buildGraph(){
@@ -175,7 +252,6 @@
       srcA.connect(gainA).connect(comp); srcB.connect(gainB).connect(comp);
       comp.connect(ctx.destination);
     }
-
     function tick(){
       if(!els.audioA.paused || !els.audioB.paused){
         els.timeView.textContent = Math.min(els.audioA.currentTime||0, els.audioB.currentTime||0).toFixed(2);
@@ -183,6 +259,7 @@
       }
     }
 
+    // Normalização via backend
     async function normalizeURL(url, target){
       const fd = new FormData();
       fd.append("target_lufs", String(target));
@@ -192,20 +269,18 @@
       if(!r.ok) throw new Error(await r.text());
       return await r.json();
     }
+    function showOk(msg){ els.normStatus.innerHTML = `<span class="ok">${msg}</span>`; }
+    function showErr(msg){ els.normStatus.innerHTML = `<span class="err">${msg}</span>`; }
+    function setState(s){ els.stateView.textContent = s; }
 
     async function normalizeBoth(){
       const urlA = els.urlA.value.trim();
       const urlB = els.urlB.value.trim();
-      if(!urlA || !urlB){ toastErr("Informe os dois links de áudio direto (.mp3/.wav)."); return; }
-
-      // Aviso rápido de YouTube
+      if(!urlA || !urlB){ showErr("Informe os dois links (.mp3/.wav)."); return; }
       const isYT = (u)=>/youtube\.com|youtu\.be/.test(u);
-      if(isYT(urlA) || isYT(urlB)){
-        toastErr("Links do YouTube não funcionam para normalizar/misturar. Use URLs diretas de áudio.");
-        return;
-      }
+      if(isYT(urlA) || isYT(urlB)){ showErr("YouTube/Spotify completos não funcionam. Use link direto de áudio."); return; }
 
-      els.normStatus.textContent = "Normalizando…";
+      els.normStatus.textContent = "Processando…";
       try{
         const [ra, rb] = await Promise.all([
           normalizeURL(urlA, B_REF - DELTA_DB),
@@ -213,33 +288,131 @@
         ]);
         els.audioA.src = `${API}${ra.public_url}`;
         els.audioB.src = `${API}${rb.public_url}`;
-        toastOk("Pronto ✔︎");
         buildGraph();
+        showOk("Pronto ✔︎");
         setState('ready');
       }catch(e){
-        toastErr(String(e.message||e).slice(0,240));
+        showErr(String(e.message||e).slice(0,240));
         setState('erro');
       }
     }
-
-    async function playAll(){ ensureCtx(); await ctx.resume?.(); els.audioA.play().catch(()=>{}); els.audioB.currentTime = els.audioA.currentTime; els.audioB.play().catch(()=>{}); setState('playing'); tick(); }
+    async function playAll(){ ensureCtx(); await ctx.resume?.(); els.audioA.play().catch(()=>{}); els.audioB.currentTime=els.audioA.currentTime; els.audioB.play().catch(()=>{}); setState('playing'); tick(); }
     function pauseAll(){ els.audioA.pause(); els.audioB.pause(); setState('paused'); }
     function stopAll(){ els.audioA.pause(); els.audioB.pause(); els.audioA.currentTime=0; els.audioB.currentTime=0; els.timeView.textContent='0.00'; setState('stopped'); }
     function seekAll(sec){ sec=Math.max(0,Number(sec)||0); els.audioA.currentTime=sec; els.audioB.currentTime=sec; }
-
-    els.normalizeBtn.addEventListener('click', normalizeBoth);
-    els.playBtn.addEventListener('click', playAll);
-    els.pauseBtn.addEventListener('click', pauseAll);
-    els.stopBtn.addEventListener('click', stopAll);
-    els.seekBtn.addEventListener('click', ()=>seekAll(els.seekSec.value));
-
-    // Toggles
     function toggle(el){ el.classList.toggle('on'); if(!ctx) return;
       if(el===els.toggles.A) gainA.gain.value = el.classList.contains('on')?1:0;
       if(el===els.toggles.B) gainB.gain.value = el.classList.contains('on')?1:0;
     }
-    els.toggles.A.addEventListener('click', ()=>toggle(els.toggles.A));
-    els.toggles.B.addEventListener('click', ()=>toggle(els.toggles.B));
+
+    // === Spotify ===
+    // converter URL de playlist para ID
+    function parsePlaylistId(u){
+      try{
+        const url = new URL(u);
+        if (!/spotify\.com/.test(url.host)) return null;
+        const parts = url.pathname.split("/").filter(Boolean);
+        const i = parts.indexOf("playlist");
+        if (i>=0 && parts[i+1]) return parts[i+1].split("?")[0];
+        return null;
+      }catch{ return null; }
+    }
+    function showSpotifyEmbed(){
+      const id = parsePlaylistId(els.spUrl.value.trim());
+      if(!id){ els.spEmbed.src=""; alert("URL de playlist inválida."); return; }
+      els.spEmbed.src = `https://open.spotify.com/embed/playlist/${id}?utm_source=generator`;
+    }
+
+    // Endpoint futuro (quando BACKEND_READY=true):
+    // GET `${API}/spotify/playlist?url=<playlistURL>`
+    // Resposta esperada:
+    // { ok: true, tracks: [ {name, artists, preview_url} , ... ] }
+    async function importSpotifyPreviews(){
+      if (!BACKEND_READY){ alert("Ative depois de publicar o backend."); return; }
+      const url = els.spUrl.value.trim();
+      if(!url){ alert("Cole a URL da playlist."); return; }
+      els.spList.innerHTML = `<p class="muted">Carregando prévias…</p>`;
+      const r = await fetch(`${API}/spotify/playlist?url=${encodeURIComponent(url)}`);
+      if (!r.ok){ els.spList.innerHTML = `<p class="err">Erro ao buscar prévias.</p>`; return; }
+      const data = await r.json();
+      if (!data.tracks?.length){ els.spList.innerHTML = `<p class="muted">Nenhuma prévia (30s) encontrada nesta playlist.</p>`; return; }
+      // Renderiza lista com botões "Usar esta prévia como Música"
+      els.spList.innerHTML = "";
+      data.tracks.forEach((t,i)=>{
+        const card = document.createElement('div');
+        card.className = "card";
+        const artists = (t.artists||[]).join(", ");
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+            <div>
+              <div><b>${t.name||"Faixa"}</b></div>
+              <div class="muted">${artists||""}</div>
+              <div class="muted" style="font-size:.9rem">${t.preview_url ? "Prévia disponível" : "Sem prévia"}</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn secondary" data-prev="${t.preview_url||""}" ${t.preview_url? "" : "disabled"}>Usar esta prévia</button>
+              <audio controls src="${t.preview_url||""}" ${t.preview_url? "" : "style='display:none'"}></audio>
+            </div>
+          </div>
+        `;
+        els.spList.appendChild(card);
+      });
+      els.spList.querySelectorAll('button[data-prev]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const prev = btn.getAttribute('data-prev');
+          if(!prev){ alert("Esta faixa não possui prévia."); return; }
+          els.urlA.value = prev; // usa a prévia como “Música”
+          window.scrollTo({top:document.querySelector("#proto").offsetTop-60, behavior:'smooth'});
+        });
+      });
+    }
+
+    // Eventos
+    document.getElementById('normalizeBtn').addEventListener('click', normalizeBoth);
+    document.getElementById('playBtn').addEventListener('click', playAll);
+    document.getElementById('pauseBtn').addEventListener('click', pauseAll);
+    document.getElementById('stopBtn').addEventListener('click', stopAll);
+    document.getElementById('seekBtn').addEventListener('click', ()=>seekAll(els.seekSec.value));
+    document.getElementById('togA').addEventListener('click', ()=>toggle(els.toggles.A));
+    document.getElementById('togB').addEventListener('click', ()=>toggle(els.toggles.B));
+    els.spShowBtn.addEventListener('click', showSpotifyEmbed);
+    els.spImportBtn.addEventListener('click', importSpotifyPreviews);
+
+    // Navegação por pontos
+    const dots = [...document.querySelectorAll('.dot')];
+    dots.forEach(d=>d.addEventListener('click',()=>{
+      document.querySelector(d.dataset.target)?.scrollIntoView({behavior:'smooth'});
+    }));
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          dots.forEach(d=>d.classList.toggle('active', d.dataset.target === '#'+e.target.id));
+        }
+      });
+    },{root:null,threshold:.4});
+    document.querySelectorAll('section').forEach(s=>obs.observe(s));
+
+    // Galeria: arquivos + legendas
+    const fotos = [
+      {file:"memo apresentação no workshop inovaneuro.png", caption:"Apresentação no Workshop InovaNeuro"},
+      {file:"memo febrace.png", caption:"Finalistas na FEBRACE"},
+      {file:"memo premiacao febrace.png", caption:"Premiação – 4º lugar em Biológicas"},
+      {file:"memo ada com as celulas h4.png", caption:"Cultura de Células H4 – laboratório"},
+      {file:"memo isa com microscopio.png", caption:"Microscopia – análise de amostras"},
+      {file:"memo no laboratório.png", caption:"Rotina de laboratório"},
+      {file:"memo ada isa roberto de jalecos no laboratorio com mascara.png", caption:"Equipe no LCCA/UFAM"},
+      {file:"memo ada isa de jaleco no laboratorio com mascara.png", caption:"Dupla no laboratório"},
+      {file:"memo ada isa e roberto fora do lab ja sem mascaras.png", caption:"Equipe – momento pós-lab"},
+      {file:"memo instituições de apoio.png", caption:"Apoio institucional ao Projeto Memo"}
+    ];
+    const gal = document.getElementById('gallery');
+    fotos.forEach(({file,caption})=>{
+      const fig = document.createElement('figure');
+      const img = document.createElement('img'); img.src = `assets/fotos/${file}`; img.alt = caption;
+      img.onerror = ()=> fig.style.display='none';
+      const cap = document.createElement('figcaption'); cap.textContent = caption;
+      fig.appendChild(img); fig.appendChild(cap); gal.appendChild(fig);
+    });
   </script>
 </body>
 </html>
