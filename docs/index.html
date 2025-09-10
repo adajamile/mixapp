@@ -131,7 +131,7 @@
       </div>
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-        <button id="normalizeBtn" class="btn">Preparar</button>
+        <button id="normalizeBtn" class="btn">Preparar (offline)</button>
         <span id="normStatus" class="muted"></span>
       </div>
 
@@ -246,8 +246,7 @@
     ];
 
     // === CONFIGS ===
-    const API = "http://127.0.0.1:8000";           // troque pela URL da Render quando publicar
-    const B_REF = -16.0, DELTA_DB = 45.0;          // alvos LUFS (B = -16; A = -61)
+      const B_REF = -16.0, DELTA_DB = 45.0;          // alvos LUFS (B = -16; A = -61)
     const BINAURAL_SRC = "assets/audio_binauralbeat.mp3";
 
     // Elementos
@@ -326,43 +325,33 @@
       }
     }
 
-    // Normalização via backend
-    async function normalizeURL(url, target){
-      const fd = new FormData();
-      fd.append("target_lufs", String(target));
-      fd.append("url", url);
-      fd.append("out_ext", "mp3");
-      const r = await fetch(`${API}/normalize`, { method:"POST", body: fd });
-      if(!r.ok) throw new Error(await r.text());
-      return await r.json();
-    }
-    function showOk(msg){ els.normStatus.innerHTML = `<span class="ok">${msg}</span>`; }
-    function showErr(msg){ els.normStatus.innerHTML = `<span class="err">${msg}</span>`; }
-    function setState(s){ els.stateView.textContent = s; }
+    // Carrega as duas trilhas diretamente do GitHub Pages (sem backend/FFmpeg)
+async function normalizeBoth(){
+  const urlA = selectedUrlA?.trim?.() || "";
+  if(!urlA){
+    showErr("Escolha uma faixa nas playlists do Projeto.");
+    return;
+  }
 
-    async function normalizeBoth(){
-      const urlA = selectedUrlA?.trim?.() || "";
-      if(!urlA){ showErr("Escolha uma faixa nas playlists do Projeto."); return; }
+  // fontes diretas (sem normalização LUFS)
+  els.audioA.src = urlA;                 // música escolhida (docs/assets/musicas/...)
+  els.audioB.src = BINAURAL_SRC;         // onda fixa (docs/assets/audio_binauralbeat.mp3)
 
-      const absA = new URL(urlA, location.href).href;
-      const absB = new URL(BINAURAL_SRC, location.href).href;
+  // monta/atualiza a cadeia WebAudio e define volumes base
+  // dentro de buildGraph()
+const BASE_VOL_MUSICA  = 0.12;  // 12% para a Música
+const BASE_VOL_BINAURAL = 0.20; // 20% para a Onda
 
-      els.normStatus.textContent = "Processando…";
-      try{
-        const [ra, rb] = await Promise.all([
-          normalizeURL(absA, B_REF - DELTA_DB), // Música alvo -61 LUFS
-          normalizeURL(absB, B_REF),            // Onda alvo -16 LUFS
-        ]);
-        els.audioA.src = `${API}${ra.public_url}`;
-        els.audioB.src = `${API}${rb.public_url}`;
-        buildGraph();
-        showOk("Pronto ✔︎");
-        setState('ready'); tick();
-      }catch(e){
-        showErr(String(e.message||e).slice(0,240));
-        setState('erro');
-      }
-    }
+gainA.gain.value = (els.toggles.A.classList.contains('on') ? 1 : 0) * BASE_VOL_MUSICA;
+gainB.gain.value = (els.toggles.B.classList.contains('on') ? 1 : 0) * BASE_VOL_BINAURAL;
+buildGraph();
+
+  // dica visual
+  showOk("Pronto (sem normalização)");
+  setState('ready');
+  tick();
+}
+
 
     async function playAll(){ ensureCtx(); await ctx.resume?.(); els.audioA.play().catch(()=>{}); els.audioB.currentTime=els.audioA.currentTime; els.audioB.play().catch(()=>{}); setState('playing'); tick(); }
     function pauseAll(){ els.audioA.pause(); els.audioB.pause(); setState('paused'); }
