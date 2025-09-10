@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <title>Projeto Memo</title>
+  <title>Projeto MeMO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
@@ -58,6 +58,19 @@
     .embedBox{aspect-ratio:16/9;width:100%;background:#0f1627;border:1px solid rgba(255,255,255,.12);border-radius:12px;display:grid;place-items:center;overflow:hidden}
     .embedBox iframe{width:100%;height:100%;border:0}
     .kpi{font-family:ui-monospace,Menlo,Consolas,monospace;color:#cfe0ff}
+
+/* Header (Opção B) */
+.header{display:flex;align-items:center;gap:12px;padding:8px 0 6px}
+.brand{display:inline-grid;place-items:center;text-decoration:none}
+.logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.titles h1{margin:0;font-size:28px}
+.titles .sub{margin:4px 0 0;color:var(--muted)}
+@media (max-width:640px){
+  .header{flex-direction:column;align-items:flex-start;gap:8px}
+  .logo{width:56px;height:56px}
+  .titles h1{font-size:26px}
+}
+
   </style>
 </head>
 <body>
@@ -72,37 +85,51 @@
   </div>
 
   <div class="wrap">
-    <header>
-      <img src="assets/logo-memo.png" alt="Logo Projeto Memo" class="logo" onerror="this.style.display='none'">
-      <div>
-        <h1>Projeto Memo</h1>
-        <p class="sub">Misture <b>Onda Binaural</b> (fixa) com <b>Música</b> em player único — com guias, Spotify e galeria.</p>
-      </div>
-    </header>
 
-    <!-- PROTÓTIPO -->
+
+    <header class="header">
+  <a href="#" class="brand" title="Voltar ao topo">
+    <img src="assets/logo-memo.png" alt="Logo Projeto MeMO" class="logo" onerror="this.style.display='none'">
+  </a>
+  <div class="titles">
+    <h1>Projeto MeMO</h1>
+    <p class="sub">
+      Bem-vindo ao site do <b>Projeto MeMO</b>! Aqui você encontra informações sobre nossa pesquisa,
+      pode explorar a <b>Onda Binaural</b> já disponível, misturar com <b>Músicas</b>, acessar playlists do Spotify
+      e conhecer mais sobre o projeto e sua equipe.
+    </p>
+  </div>
+</header>
+
+
+    <!-- PROTÓTIPO (limpo + onda travada) -->
     <section id="proto" class="card">
-      <div class="hero"><h2 style="margin:0">Protótipo (player único)</h2></div>
+      <div class="hero"><h2 style="margin:0">Protótipo</h2></div>
 
       <div class="grid two">
         <div>
-          <label>Link da Música (áudio direto .mp3/.wav)</label>
-          <input id="urlA" type="text" placeholder="https://exemplo.com/musica.mp3" />
-          <p class="muted">YouTube/Spotify completos não funcionam para mix. Use link direto ou arquivo hospedado no seu GitHub (<i>Raw</i>).</p>
+          <label>Música (link direto .mp3/.wav)</label>
+          <input id="urlA" type="text" placeholder="https://seu-arquivo.mp3" />
+          <p class="muted">Dica: se o arquivo estiver no GitHub, use o botão <i>Raw</i> para obter o link direto.</p>
         </div>
-        <div>
-          <label>Onda Binaural (já anexada ao site)</label>
-          <input id="urlB" type="text" value="assets/audio_binauralbeat.mp3" />
-          <p class="muted">Campo já preenchido com o seu arquivo fixo.</p>
+
+        <!-- Onda Binaural travada -->
+        <div class="card" style="display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.04)">
+          <div style="font-size:22px">🔒</div>
+          <div>
+            <div><b>Onda Binaural</b> (fixa)</div>
+            <div class="muted" style="font-size:.9rem">assets/audio_binauralbeat.mp3</div>
+          </div>
+          <div style="margin-left:auto">
+            <button id="binauralOnlyBtn" class="btn secondary">Ouvir Onda</button>
+          </div>
         </div>
       </div>
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-        <button id="normalizeBtn" class="btn">Carregar e preparar trilhas</button>
-        <button id="binauralOnlyBtn" class="btn secondary">Ouvir Onda Agora</button>
+        <button id="normalizeBtn" class="btn">Preparar</button>
         <span id="normStatus" class="muted"></span>
       </div>
-      <div class="kpi" id="targetsView" style="margin-top:6px">B = −16.0 LUFS · Música = −61.0 LUFS</div>
 
       <hr style="border-color:rgba(255,255,255,.1);margin:14px 0">
 
@@ -131,19 +158,12 @@
       <p class="muted" style="margin-top:10px">
         Tempo: <span id="timeView">0.00</span>s · Estado: <span id="stateView">idle</span>
       </p>
-
-      <p class="muted">Guia rápido:</p>
-      <div class="grid">
-        <div class="step"><div class="n">1</div><div>O arquivo <b>audio_binauralbeat.mp3</b> já está em <code>docs/assets/</code>.</div></div>
-        <div class="step"><div class="n">2</div><div>Cole um <b>link direto</b> da Música (.mp3/.wav). Se for do próprio GitHub, use o botão <b>Raw</b>.</div></div>
-        <div class="step"><div class="n">3</div><div>Clique <b>Carregar e preparar trilhas</b> e depois <b>Play</b>. Use os botões para ligar/desligar cada trilha.</div></div>
-      </div>
     </section>
 
     <!-- SPOTIFY -->
     <section id="spotify" class="card">
-      <h2 style="margin-top:0">Playlist do Spotify (embed + prévias 30s)</h2>
-      <p class="muted">Cole a URL da playlist. Você pode <b>ver e ouvir</b> pelo player oficial abaixo. Para <b>importar as prévias (30s)</b> e misturar com a Onda, ative depois que publicar o backend.</p>
+      <h2 style="margin-top:0">Playlist do Spotify</h2>
+      <p class="muted">Cole a URL da playlist para visualizar no player oficial. A importação de prévias (30s) estará disponível em breve.</p>
 
       <div class="grid two">
         <div>
@@ -152,21 +172,20 @@
         </div>
         <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
           <button id="spShowBtn" class="btn">Mostrar playlist</button>
-          <button id="spImportBtn" class="btn secondary" title="Ative após publicar o backend">Importar prévias (30s)</button>
+          <button id="spImportBtn" class="btn secondary" disabled>Importar prévias (em breve)</button>
         </div>
       </div>
 
       <div class="embedBox" style="margin-top:12px"><iframe id="spEmbed" allow="encrypted-media"></iframe></div>
-
       <div id="spList" class="grid" style="margin-top:12px"></div>
-      <p class="muted" id="spHint">Dica: ‘Importar prévias (30s)’ fica desabilitado até você ligar o backend.</p>
+      <p class="muted" id="spHint">Em breve: importar prévias de 30s para misturar com a Onda.</p>
     </section>
 
     <!-- SOBRE -->
     <section id="sobre" class="card">
-      <h2 style="margin-top:0">O que é o Projeto Memo</h2>
+      <h2 style="margin-top:0">O que é o Projeto MeMO</h2>
       <p class="muted">
-        O Projeto Memo investiga como <b>ondas binaurais</b> – estímulos sonoros com duas frequências ligeiramente diferentes em cada ouvido –
+        O Projeto MeMO investiga como <b>ondas binaurais</b> – estímulos sonoros com duas frequências ligeiramente diferentes em cada ouvido –
         podem contribuir como intervenção <b>acessível, não invasiva e de baixo custo</b> para apoiar cuidados na Doença de Alzheimer.
         Em testes iniciais com células H4, observamos indícios de redução na expressão de genes associados à DA (APP, BACE e MAPT).
         Próximos passos incluem estudos com EEG em pacientes e o uso de IA para entender melhor os mecanismos envolvidos.
@@ -176,11 +195,11 @@
     <!-- PATROCINADORES -->
     <section id="patro" class="card">
       <h2 style="margin-top:0">Apoio e Patrocinadores</h2>
-      <p class="muted">Obrigado a todos que apoiam o Projeto Memo.</p>
+      <p class="muted">Obrigado a todos que apoiam o Projeto MeMO.</p>
       <img src="assets/fotos/memo instituições de apoio.png" alt="Apoiadores" style="max-width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.1)" onerror="this.style.display='none'">
     </section>
 
-    <!-- BINAURAL EXPLICACAO -->
+    <!-- BINAURAL EXPLICAÇÃO -->
     <section id="binaural" class="card">
       <h2 style="margin-top:0">O que são Ondas Binaurais?</h2>
       <p class="muted">
@@ -196,7 +215,7 @@
       <p class="muted">As imagens são carregadas de <code>docs/assets/fotos/</code>. O layout em colunas evita cortes e respeita a altura de cada foto.</p>
     </section>
 
-    <footer>Feito com 💙 pelo Projeto Memo</footer>
+    <footer>Feito com 💙 pelo Projeto MeMO</footer>
   </div>
 
   <!-- players invisíveis -->
@@ -206,13 +225,12 @@
   <script>
     // === CONFIGS ===
     const API = "http://127.0.0.1:8000";           // troque pela URL da Render quando publicar
-    const BACKEND_READY = false;                    // mude para true quando publicar backend
     const B_REF = -16.0, DELTA_DB = 45.0;          // alvos LUFS (B = -16; A = -61)
+    const BINAURAL_SRC = "assets/audio_binauralbeat.mp3";
 
     // Elementos
     const els = {
       urlA: document.getElementById('urlA'),
-      urlB: document.getElementById('urlB'),
       normalizeBtn: document.getElementById('normalizeBtn'),
       binauralOnlyBtn: document.getElementById('binauralOnlyBtn'),
       normStatus: document.getElementById('normStatus'),
@@ -226,7 +244,6 @@
       stateView: document.getElementById('stateView'),
       audioA: document.getElementById('audioA'),
       audioB: document.getElementById('audioB'),
-      targetsView: document.getElementById('targetsView'),
       gallery: document.getElementById('gallery'),
       spUrl: document.getElementById('spUrl'),
       spShowBtn: document.getElementById('spShowBtn'),
@@ -236,12 +253,8 @@
       spHint: document.getElementById('spHint'),
     };
 
-    // estado do botão de prévias
-    els.spImportBtn.disabled = !BACKEND_READY;
-    if (!BACKEND_READY) els.spHint.innerHTML = "Para importar prévias de 30s, publique o backend e mude <code>BACKEND_READY = true</code> aqui no index.";
-
-    // Mostrar alvos
-    els.targetsView.textContent = `B = ${B_REF.toFixed(1)} LUFS · Música = ${(B_REF-DELTA_DB).toFixed(1)} LUFS`;
+    // Mostrar alvos (apenas se quiser exibir em algum lugar)
+    // document.getElementById('targetsView')?.textContent = `B = ${B_REF.toFixed(1)} · Música = ${(B_REF-DELTA_DB).toFixed(1)} LUFS`;
 
     // WebAudio graph
     let ctx, srcA, srcB, gainA, gainB, comp, rafId=null;
@@ -283,21 +296,23 @@
 
     async function normalizeBoth(){
       const urlA = els.urlA.value.trim();
-      const urlB = els.urlB.value.trim();
-      if(!urlA || !urlB){ showErr("Informe os dois links (.mp3/.wav)."); return; }
+      if(!urlA){ showErr("Informe o link .mp3/.wav da Música."); return; }
       const isYT = (u)=>/youtube\.com|youtu\.be/.test(u);
-      if(isYT(urlA) || isYT(urlB)){ showErr("YouTube/Spotify completos não funcionam. Use link direto de áudio."); return; }
+      if(isYT(urlA)){ showErr("YouTube/Spotify completos não funcionam. Use link direto de áudio."); return; }
+
+      const absB = new URL(BINAURAL_SRC, location.href).href; // onda fixa absoluta
+
       els.normStatus.textContent = "Processando…";
       try{
         const [ra, rb] = await Promise.all([
-          normalizeURL(urlA, B_REF - DELTA_DB),
-          normalizeURL(urlB, B_REF),
+          normalizeURL(urlA, B_REF - DELTA_DB), // Música alvo -61 LUFS
+          normalizeURL(absB, B_REF),            // Onda alvo -16 LUFS
         ]);
         els.audioA.src = `${API}${ra.public_url}`;
         els.audioB.src = `${API}${rb.public_url}`;
         buildGraph();
         showOk("Pronto ✔︎");
-        setState('ready');
+        setState('ready'); tick();
       }catch(e){
         showErr(String(e.message||e).slice(0,240));
         setState('erro');
@@ -331,51 +346,13 @@
       if(!id){ els.spEmbed.src=""; alert("URL de playlist inválida."); return; }
       els.spEmbed.src = `https://open.spotify.com/embed/playlist/${id}?utm_source=generator`;
     }
-    async function importSpotifyPreviews(){
-      if (!BACKEND_READY){ alert("Ative depois de publicar o backend."); return; }
-      const url = els.spUrl.value.trim();
-      if(!url){ alert("Cole a URL da playlist."); return; }
-      els.spList.innerHTML = `<p class="muted">Carregando prévias…</p>`;
-      const r = await fetch(`${API}/spotify/playlist?url=${encodeURIComponent(url)}`);
-      if (!r.ok){ els.spList.innerHTML = `<p class="err">Erro ao buscar prévias.</p>`; return; }
-      const data = await r.json();
-      if (!data.tracks?.length){ els.spList.innerHTML = `<p class="muted">Nenhuma prévia (30s) encontrada.</p>`; return; }
-      els.spList.innerHTML = "";
-      data.tracks.forEach((t)=>{
-        const card = document.createElement('div');
-        card.className = "card";
-        const artists = (t.artists||[]).join(", ");
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
-            <div>
-              <div><b>${t.name||"Faixa"}</b></div>
-              <div class="muted">${artists||""}</div>
-              <div class="muted" style="font-size:.9rem">${t.preview_url ? "Prévia disponível" : "Sem prévia"}</div>
-            </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn secondary" data-prev="${t.preview_url||""}" ${t.preview_url? "" : "disabled"}>Usar esta prévia</button>
-              <audio controls src="${t.preview_url||""}" ${t.preview_url? "" : "style='display:none'"}></audio>
-            </div>
-          </div>
-        `;
-        els.spList.appendChild(card);
-      });
-      els.spList.querySelectorAll('button[data-prev]').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const prev = btn.getAttribute('data-prev');
-          if(!prev){ alert("Esta faixa não possui prévia."); return; }
-          els.urlA.value = prev; // usa a prévia como Música
-          document.querySelector('#proto').scrollIntoView({behavior:'smooth'});
-        });
-      });
-    }
 
     // Eventos
     document.getElementById('normalizeBtn').addEventListener('click', normalizeBoth);
     document.getElementById('binauralOnlyBtn').addEventListener('click', async ()=>{
-      els.audioB.src = els.urlB.value.trim() || "assets/audio_binauralbeat.mp3";
+      els.audioB.src = BINAURAL_SRC;
       buildGraph();
-      try{ ensureCtx(); await ctx.resume?.(); await els.audioB.play(); setState('binaural-only'); }catch{}
+      try{ ensureCtx(); await ctx.resume?.(); await els.audioB.play(); setState('binaural-only'); tick(); }catch{}
     });
     document.getElementById('playBtn').addEventListener('click', playAll);
     document.getElementById('pauseBtn').addEventListener('click', pauseAll);
@@ -384,7 +361,6 @@
     document.getElementById('togA').addEventListener('click', ()=>toggle(els.toggles.A));
     document.getElementById('togB').addEventListener('click', ()=>toggle(els.toggles.B));
     els.spShowBtn.addEventListener('click', showSpotifyEmbed);
-    els.spImportBtn.addEventListener('click', importSpotifyPreviews);
 
     // Pontinhos
     const dots = [...document.querySelectorAll('.dot')];
@@ -400,7 +376,7 @@
     },{root:null,threshold:.4});
     document.querySelectorAll('section').forEach(s=>obs.observe(s));
 
-    // Galeria (sem cortes, com legendas)
+    // Galeria
     const fotos = [
       {file:"memo apresentação no workshop inovaneuro.png", caption:"Apresentação no Workshop InovaNeuro"},
       {file:"memo febrace.png", caption:"Finalistas na FEBRACE"},
@@ -411,7 +387,7 @@
       {file:"memo ada isa roberto de jalecos no laboratorio com mascara.png", caption:"Equipe no LCCA/UFAM"},
       {file:"memo ada isa de jaleco no laboratorio com mascara.png", caption:"Dupla no laboratório"},
       {file:"memo ada isa e roberto fora do lab ja sem mascaras.png", caption:"Equipe – momento pós-lab"},
-      {file:"memo instituições de apoio.png", caption:"Apoio institucional ao Projeto Memo"}
+      {file:"memo instituições de apoio.png", caption:"Apoio institucional ao Projeto MeMO"}
     ];
     const gal = document.getElementById('gallery');
     fotos.forEach(({file,caption})=>{
@@ -422,11 +398,11 @@
       fig.appendChild(img); fig.appendChild(cap); gal.appendChild(fig);
     });
 
-    // Pré-carregar a onda B para “um clique tocar”
+    // Pré-carregar a onda para “um clique tocar”
     window.addEventListener("load", ()=>{
-      els.audioB.src = els.urlB.value.trim() || "assets/audio_binauralbeat.mp3";
+      els.audioB.src = BINAURAL_SRC;
       buildGraph();
-      // autoplay pode ser bloqueado; o botão "Ouvir Onda Agora" e o "Play" resolvem com um toque
+      // autoplay pode ser bloqueado; o botão "Ouvir Onda" e o "Play" resolvem com um toque
     });
   </script>
 </body>
