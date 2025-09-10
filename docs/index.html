@@ -2,63 +2,244 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <title>Mix A(20 dB) + B(65 dB)</title>
+  <title>Projeto Memo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0b1220; --card:#121a2b; --muted:#8ea0c0; --text:#eaf0ff; --accent:#6ea8fe; --accent2:#a78bfa; --ok:#34d399; --err:#f87171;
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; color:var(--text);
+      background: radial-gradient(1200px 800px at 20% -10%, #1d2a44 0%, #0b1220 60%),
+                  radial-gradient(1000px 600px at 100% 10%, #2a1d44 0%, #0b1220 60%);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    }
+    .wrap{max-width:980px; margin:48px auto; padding:0 16px;}
+    .hero{display:flex; gap:16px; align-items:center; margin-bottom:20px}
+    .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;color:#0b1220}
+    h1{margin:0;font-size:28px}
+    p.sub{margin:6px 0 0;color:var(--muted)}
+    .card{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); padding:16px; margin:14px 0; backdrop-filter: blur(6px);}
+    .row{display:flex; gap:14px; flex-wrap:wrap}
+    .col{flex:1 1 300px; min-width:280px}
+    label{display:block; font-weight:600; margin-bottom:6px}
+    input[type="text"]{
+      width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.15);
+      background:#0f1627; color:var(--text); outline:none;
+    }
+    input::placeholder{color:#9bb0d1}
+    .hint{color:var(--muted); font-size:.9rem; margin-top:6px}
+    .btn{
+      appearance:none; border:1px solid transparent; border-radius:12px; padding:10px 14px; cursor:pointer; font-weight:600;
+      background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0b1220;
+    }
+    .btn.secondary{background:transparent; color:var(--text); border-color:rgba(255,255,255,.2)}
+    .btn.ghost{background:transparent; color:var(--muted); border-color:transparent}
+    .kpi{font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.92rem; color:#bcd0f0}
+    .state{font-size:.92rem}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+    .tog{display:flex; gap:10px; align-items:center; margin-top:8px}
+    .switch{position:relative;width:50px;height:28px;background:#1d2a3a;border-radius:999px;border:1px solid rgba(255,255,255,.15);cursor:pointer}
+    .switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.18s;}
+    .switch.on{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    .switch.on::after{left:24px}
+    .controls{display:flex; gap:10px; flex-wrap:wrap}
+    .controls .btn{min-width:84px}
+    .seek{display:flex; align-items:center; gap:8px}
+    input[type="number"]{width:110px; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,.2); background:#0f1627; color:var(--text)}
+    .footer{color:#92a7c9; font-size:.9rem; text-align:center; margin-top:10px}
+    a{color:#9fc1ff}
+  </style>
 </head>
 <body>
-  <h1>Mix com normalização LUFS (A=20 dB, B=65 dB)</h1>
-  <p>Site publicado via GitHub Pages. Depois vamos apontar para o backend (Render).</p>
+  <div class="wrap">
+    <div class="hero">
+      <div class="logo">PM</div>
+      <div>
+        <h1>Projeto Memo</h1>
+        <p class="sub">Misture <b>Onda Binaural</b> (fixo) com <b>Música</b> em volumes-alvo (LUFS). Player único.</p>
+      </div>
+    </div>
 
-  <div>
-    <label>A (20 dB): <input id="fileA" type="file" accept="audio/*" /></label>
-  </div>
-  <div>
-    <label>B (65 dB): <input id="fileB" type="file" accept="audio/*" /></label>
-  </div>
-  <button id="normalizeBtn">Normalizar A e B</button>
-  <p id="status"></p>
+    <div class="card">
+      <h3 style="margin:4px 0 10px">Fontes</h3>
+      <div class="row">
+        <div class="col">
+          <label>Música (link de áudio direto)</label>
+          <input id="urlA" type="text" placeholder="https://exemplo.com/musica.mp3" />
+          <div class="hint">YouTube <b>não funciona</b>. Use um link <code>.mp3/.wav</code> direto (pode ser o “raw” do seu GitHub).</div>
+        </div>
+        <div class="col">
+          <label>Onda Binaural (link fixo de áudio direto)</label>
+          <input id="urlB" type="text" placeholder="https://exemplo.com/onda.mp3" />
+          <div class="hint">Este é o trilho “mais alto”. Será a referência de loudness (padrão −16 LUFS).</div>
+        </div>
+      </div>
+      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap">
+        <button id="normalizeBtn" class="btn">Normalizar & Carregar</button>
+        <span id="normStatus" class="state"></span>
+      </div>
+      <div class="kpi" id="targetsView" style="margin-top:8px">B_target=-16.0 LUFS · A_target=-61.0 LUFS</div>
+    </div>
 
-  <audio id="audioA" controls></audio>
-  <audio id="audioB" controls></audio>
+    <div class="card">
+      <h3 style="margin:4px 0 10px">Player</h3>
+      <div class="controls">
+        <button id="playBtn" class="btn">▶ Play</button>
+        <button id="pauseBtn" class="btn secondary">⏸ Pause</button>
+        <button id="stopBtn" class="btn secondary">⏹ Stop</button>
+        <div class="seek">
+          <label for="seekSec" class="hint">Ir para (s)</label>
+          <input id="seekSec" type="number" value="0" step="1" />
+          <button id="seekBtn" class="btn secondary">Ir</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <div class="col">
+          <div class="tog">
+            <div>Música</div>
+            <div id="togA" class="switch on" title="ativar/desativar Música"></div>
+          </div>
+          <div class="hint">Ativa/Desativa a trilha normalizada da Música.</div>
+        </div>
+        <div class="col">
+          <div class="tog">
+            <div>Onda Binaural</div>
+            <div id="togB" class="switch on" title="ativar/desativar Onda Binaural"></div>
+          </div>
+          <div class="hint">Ativa/Desativa a trilha normalizada da Onda.</div>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">
+        Tempo: <span id="timeView">0.00</span>s · Estado: <span id="stateView">idle</span>
+      </div>
+      <div class="hint">Dica: sempre clique <b>Play</b> em celulares (autoplay é bloqueado).</div>
+    </div>
+
+    <p class="footer">Feito com 💙 para o Projeto Memo. Normalização por LUFS no servidor (ffmpeg/loudnorm).</p>
+  </div>
+
+  <!-- elementos de áudio não visíveis -->
+  <audio id="audioA" crossorigin="anonymous"></audio>
+  <audio id="audioB" crossorigin="anonymous"></audio>
 
   <script>
-    // 👉 trocaremos depois para sua URL da Render
-    const API = "http://127.0.0.1:8000";
+    // Troque depois pela URL pública da Render:
+    const API = "http://127.0.0.1:8000"; // ex.: "https://lufs-backend-xxxx.onrender.com"
+
+    // Alvos de loudness (padrão): B = -16 LUFS; A = B - 45 = -61 LUFS
+    const B_REF = -16.0, DELTA_DB = 45.0;
 
     const els = {
-      fileA: document.getElementById('fileA'),
-      fileB: document.getElementById('fileB'),
+      urlA: document.getElementById('urlA'),
+      urlB: document.getElementById('urlB'),
       normalizeBtn: document.getElementById('normalizeBtn'),
-      status: document.getElementById('status'),
+      normStatus: document.getElementById('normStatus'),
+      playBtn: document.getElementById('playBtn'),
+      pauseBtn: document.getElementById('pauseBtn'),
+      stopBtn: document.getElementById('stopBtn'),
+      seekSec: document.getElementById('seekSec'),
+      seekBtn: document.getElementById('seekBtn'),
+      toggles: { A: document.getElementById('togA'), B: document.getElementById('togB') },
+      timeView: document.getElementById('timeView'),
+      stateView: document.getElementById('stateView'),
       audioA: document.getElementById('audioA'),
       audioB: document.getElementById('audioB'),
+      targetsView: document.getElementById('targetsView'),
     };
 
-    async function normalizeOne(file, target_lufs){
+    // Mostra alvos
+    els.targetsView.textContent = `B_target=${B_REF.toFixed(1)} LUFS · A_target=${(B_REF - DELTA_DB).toFixed(1)} LUFS`;
+
+    function setState(s){ els.stateView.textContent = s; }
+    function toastOk(msg){ els.normStatus.innerHTML = `<span class="ok">${msg}</span>`; }
+    function toastErr(msg){ els.normStatus.innerHTML = `<span class="err">${msg}</span>`; }
+
+    // Web Audio (um grafo com 2 fontes)
+    let ctx, srcA, srcB, gainA, gainB, comp, rafId=null;
+    function ensureCtx(){ if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); }
+    function buildGraph(){
+      ensureCtx();
+      try{ srcA?.disconnect(); srcB?.disconnect(); gainA?.disconnect(); gainB?.disconnect(); comp?.disconnect(); }catch{}
+      srcA = ctx.createMediaElementSource(els.audioA);
+      srcB = ctx.createMediaElementSource(els.audioB);
+      gainA = ctx.createGain(); gainB = ctx.createGain();
+      gainA.gain.value = els.toggles.A.classList.contains('on') ? 1 : 0;
+      gainB.gain.value = els.toggles.B.classList.contains('on') ? 1 : 0;
+      comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -3; comp.ratio.value = 3; comp.attack.value=.01; comp.release.value=.25;
+      srcA.connect(gainA).connect(comp); srcB.connect(gainB).connect(comp);
+      comp.connect(ctx.destination);
+    }
+
+    function tick(){
+      if(!els.audioA.paused || !els.audioB.paused){
+        els.timeView.textContent = Math.min(els.audioA.currentTime||0, els.audioB.currentTime||0).toFixed(2);
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
+    async function normalizeURL(url, target){
       const fd = new FormData();
-      fd.append("target_lufs", String(target_lufs));
+      fd.append("target_lufs", String(target));
+      fd.append("url", url);
       fd.append("out_ext", "mp3");
-      fd.append("file", file);
-      const r = await fetch(`${API}/normalize`, { method: "POST", body: fd });
-      if (!r.ok) throw new Error(await r.text());
+      const r = await fetch(`${API}/normalize`, { method:"POST", body: fd });
+      if(!r.ok) throw new Error(await r.text());
       return await r.json();
     }
 
-    els.normalizeBtn.onclick = async () => {
-      const A = els.fileA.files[0], B = els.fileB.files[0];
-      if(!A || !B){ els.status.textContent = "Selecione dois arquivos (A e B)."; return; }
-      els.status.textContent = "Normalizando…";
+    async function normalizeBoth(){
+      const urlA = els.urlA.value.trim();
+      const urlB = els.urlB.value.trim();
+      if(!urlA || !urlB){ toastErr("Informe os dois links de áudio direto (.mp3/.wav)."); return; }
+
+      // Aviso rápido de YouTube
+      const isYT = (u)=>/youtube\.com|youtu\.be/.test(u);
+      if(isYT(urlA) || isYT(urlB)){
+        toastErr("Links do YouTube não funcionam para normalizar/misturar. Use URLs diretas de áudio.");
+        return;
+      }
+
+      els.normStatus.textContent = "Normalizando…";
       try{
-        const Bref = -16;           // alvo de B
-        const Atgt = Bref - 45;     // A = B - 45 dB
-        const [ra, rb] = await Promise.all([normalizeOne(A, Atgt), normalizeOne(B, Bref)]);
+        const [ra, rb] = await Promise.all([
+          normalizeURL(urlA, B_REF - DELTA_DB),
+          normalizeURL(urlB, B_REF),
+        ]);
         els.audioA.src = `${API}${ra.public_url}`;
         els.audioB.src = `${API}${rb.public_url}`;
-        els.status.textContent = "Pronto!";
+        toastOk("Pronto ✔︎");
+        buildGraph();
+        setState('ready');
       }catch(e){
-        els.status.textContent = "Erro: " + e.message.slice(0,200);
+        toastErr(String(e.message||e).slice(0,240));
+        setState('erro');
       }
-    };
+    }
+
+    async function playAll(){ ensureCtx(); await ctx.resume?.(); els.audioA.play().catch(()=>{}); els.audioB.currentTime = els.audioA.currentTime; els.audioB.play().catch(()=>{}); setState('playing'); tick(); }
+    function pauseAll(){ els.audioA.pause(); els.audioB.pause(); setState('paused'); }
+    function stopAll(){ els.audioA.pause(); els.audioB.pause(); els.audioA.currentTime=0; els.audioB.currentTime=0; els.timeView.textContent='0.00'; setState('stopped'); }
+    function seekAll(sec){ sec=Math.max(0,Number(sec)||0); els.audioA.currentTime=sec; els.audioB.currentTime=sec; }
+
+    els.normalizeBtn.addEventListener('click', normalizeBoth);
+    els.playBtn.addEventListener('click', playAll);
+    els.pauseBtn.addEventListener('click', pauseAll);
+    els.stopBtn.addEventListener('click', stopAll);
+    els.seekBtn.addEventListener('click', ()=>seekAll(els.seekSec.value));
+
+    // Toggles
+    function toggle(el){ el.classList.toggle('on'); if(!ctx) return;
+      if(el===els.toggles.A) gainA.gain.value = el.classList.contains('on')?1:0;
+      if(el===els.toggles.B) gainB.gain.value = el.classList.contains('on')?1:0;
+    }
+    els.toggles.A.addEventListener('click', ()=>toggle(els.toggles.A));
+    els.toggles.B.addEventListener('click', ()=>toggle(els.toggles.B));
   </script>
 </body>
 </html>
