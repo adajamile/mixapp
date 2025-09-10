@@ -211,10 +211,10 @@
     <section id="binaural" class="card">
       <h2 style="margin-top:0">O que são Ondas Binaurais?</h2>
       <p class="muted">
-  Ondas binaurais são um efeito auditivo: cada ouvido recebe uma frequência levemente diferente e o cérebro interpreta a diferença como uma <b>batida rítmica</b>.  
-  Estudos exploram como faixas específicas — <b>delta</b> (sono profundo), <b>theta</b> (relaxamento), <b>alpha</b> (calma e foco) e <b>beta</b> (atenção ativa) — podem influenciar o humor, a concentração ou o relaxamento.  
-  Seu uso é <b>simples, opcional e consciente</b>.
-</p>
+        Ondas binaurais são um efeito auditivo: cada ouvido recebe uma frequência levemente diferente e o cérebro interpreta a diferença como uma <b>batida rítmica</b>.
+        Estudos exploram como faixas específicas — <b>delta</b> (sono profundo), <b>theta</b> (relaxamento), <b>alpha</b> (calma e foco) e <b>beta</b> (atenção ativa) — podem influenciar o humor, a concentração ou o relaxamento.
+        Seu uso é <b>simples, opcional e consciente</b>.
+      </p>
     </section>
 
     <!-- GALERIA -->
@@ -246,7 +246,7 @@
     ];
 
     // === CONFIGS ===
-      const B_REF = -16.0, DELTA_DB = 45.0;          // alvos LUFS (B = -16; A = -61)
+    const B_REF = -16.0, DELTA_DB = 45.0;          // alvos LUFS (B = -16; A = -61)
     const BINAURAL_SRC = "assets/audio_binauralbeat.mp3";
 
     // Elementos
@@ -308,10 +308,12 @@
       if (!gainA) gainA = ctx.createGain();
       if (!gainB) gainB = ctx.createGain();
 
-      // Volume base do nosso mini-player (não afeta o iframe do Spotify)
-      const BASE_VOL = 0.16;
-      gainA.gain.value = (els.toggles.A.classList.contains('on') ? 1 : 0) * BASE_VOL;
-      gainB.gain.value = (els.toggles.B.classList.contains('on') ? 1 : 0) * BASE_VOL;
+      // volumes base (offline, sem normalização LUFS)
+      const BASE_VOL_MUSICA   = 0.12; // 12% música
+      const BASE_VOL_BINAURAL = 0.20; // 20% onda
+
+      gainA.gain.value = (els.toggles.A.classList.contains('on') ? 1 : 0) * BASE_VOL_MUSICA;
+      gainB.gain.value = (els.toggles.B.classList.contains('on') ? 1 : 0) * BASE_VOL_BINAURAL;
 
       comp = ctx.createDynamicsCompressor();
       comp.threshold.value = -3; comp.ratio.value = 3; comp.attack.value=.01; comp.release.value=.25;
@@ -326,32 +328,25 @@
     }
 
     // Carrega as duas trilhas diretamente do GitHub Pages (sem backend/FFmpeg)
-async function normalizeBoth(){
-  const urlA = selectedUrlA?.trim?.() || "";
-  if(!urlA){
-    showErr("Escolha uma faixa nas playlists do Projeto.");
-    return;
-  }
+    async function normalizeBoth(){
+      const urlA = selectedUrlA?.trim?.() || "";
+      if(!urlA){
+        showErr("Escolha uma faixa nas playlists do Projeto.");
+        return;
+      }
 
-  // fontes diretas (sem normalização LUFS)
-  els.audioA.src = urlA;                 // música escolhida (docs/assets/musicas/...)
-  els.audioB.src = BINAURAL_SRC;         // onda fixa (docs/assets/audio_binauralbeat.mp3)
+      // fontes diretas (sem normalização LUFS)
+      els.audioA.src = urlA;                 // música (docs/assets/musicas/...)
+      els.audioB.src = BINAURAL_SRC;         // onda fixa (docs/assets/audio_binauralbeat.mp3)
 
-  // monta/atualiza a cadeia WebAudio e define volumes base
-  // dentro de buildGraph()
-const BASE_VOL_MUSICA  = 0.12;  // 12% para a Música
-const BASE_VOL_BINAURAL = 0.20; // 20% para a Onda
+      // monta/atualiza a cadeia WebAudio e define volumes base
+      buildGraph();
 
-gainA.gain.value = (els.toggles.A.classList.contains('on') ? 1 : 0) * BASE_VOL_MUSICA;
-gainB.gain.value = (els.toggles.B.classList.contains('on') ? 1 : 0) * BASE_VOL_BINAURAL;
-buildGraph();
-
-  // dica visual
-  showOk("Pronto (sem normalização)");
-  setState('ready');
-  tick();
-}
-
+      // dica visual
+      showOk("Pronto (sem normalização)");
+      setState('ready');
+      tick();
+    }
 
     async function playAll(){ ensureCtx(); await ctx.resume?.(); els.audioA.play().catch(()=>{}); els.audioB.currentTime=els.audioA.currentTime; els.audioB.play().catch(()=>{}); setState('playing'); tick(); }
     function pauseAll(){ els.audioA.pause(); els.audioB.pause(); setState('paused'); }
@@ -361,9 +356,11 @@ buildGraph();
     // alternadores
     function toggle(el){
       el.classList.toggle('on'); if(!ctx) return;
-      const BASE_VOL = 0.16;
-      if(el===els.toggles.A) gainA.gain.value = (el.classList.contains('on')?1:0) * BASE_VOL;
-      if(el===els.toggles.B) gainB.gain.value = (el.classList.contains('on')?1:0) * BASE_VOL;
+      // manter o mesmo balanceamento base já aplicado no buildGraph()
+      const BASE_VOL_MUSICA   = 0.12;
+      const BASE_VOL_BINAURAL = 0.20;
+      if(el===els.toggles.A) gainA.gain.value = (el.classList.contains('on')?1:0) * BASE_VOL_MUSICA;
+      if(el===els.toggles.B) gainB.gain.value = (el.classList.contains('on')?1:0) * BASE_VOL_BINAURAL;
     }
 
     // Spotify (somente embed)
@@ -382,6 +379,11 @@ buildGraph();
       if(!id){ els.spEmbed.src=""; alert("URL de playlist inválida."); return; }
       els.spEmbed.src = `https://open.spotify.com/embed/playlist/${id}?utm_source=generator`;
     }
+
+    // Helpers de UI
+    function showOk(msg){ els.normStatus.innerHTML = `<span class="ok">${msg}</span>`; }
+    function showErr(msg){ els.normStatus.innerHTML = `<span class="err">${msg}</span>`; }
+    function setState(s){ els.stateView.textContent = s; }
 
     // Eventos
     document.getElementById('normalizeBtn').addEventListener('click', normalizeBoth);
