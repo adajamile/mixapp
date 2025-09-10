@@ -2,21 +2,24 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <title>Projeto MeMO</title>
+  <title>Projeto Memo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
       --bg:#0b1220; --card:#121a2b; --muted:#9fb0cf; --text:#eaf0ff;
       --accent:#6ea8fe; --accent2:#a78bfa; --ok:#34d399; --err:#f87171;
       --radius:16px; --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --gap:18px;
     }
     *{box-sizing:border-box}
     html,body{margin:0;background:#0b1220;color:var(--text);font-family:system-ui,Segoe UI,Roboto,Arial}
-    .wrap{max-width:1024px;margin:0 auto;padding:20px}
-    header{display:flex;align-items:center;gap:12px;padding:16px 0}
+    .wrap{max-width:1024px;margin:0 auto;padding:22px}
+    header{display:flex;align-items:center;gap:12px;padding:8px 0 6px}
     .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;color:#0b1220}
     h1{margin:0;font-size:28px}
     p.sub{margin:4px 0 0;color:var(--muted)}
+
+    section{scroll-margin-top:80px; margin: var(--gap) 0;}
     .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(4px)}
     .grid{display:grid;gap:14px}
     .two{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
@@ -37,25 +40,28 @@
     .controls .btn{min-width:88px}
     .seek{display:flex;align-items:center;gap:8px}
     footer{color:#9fb0cf;text-align:center;padding:18px 0}
-    /* nav pontos */
+
+    /* nav por pontos */
     .navdots{position:fixed;right:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:50}
     .dot{width:12px;height:12px;border-radius:50%;background:#3a4461;border:2px solid #7084b3;cursor:pointer;transition:.2s}
     .dot.active{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:#cdd9ff}
-    section{scroll-margin-top:80px}
+
     .hero{display:flex;gap:14px;align-items:center;margin:6px 0 14px}
-    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    figure{margin:0}
-    figure img{width:100%;height:170px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.1)}
+
+    /* Galeria masonry (sem corte) */
+    .gallery{column-count:1; column-gap:12px;}
+    @media (min-width:640px){ .gallery{column-count:2;} }
+    @media (min-width:980px){ .gallery{column-count:3;} }
+    .gallery figure{break-inside:avoid; margin:0 0 12px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:8px}
+    .gallery img{width:100%; height:auto; display:block; border-radius:10px}
     figcaption{font-size:.9rem;color:#cfe0ff;margin-top:6px}
-    .step{display:flex;gap:10px;align-items:flex-start}
-    .step .n{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b1220;display:grid;place-items:center;font-weight:800;margin-top:2px}
-    .kpi{font-family:ui-monospace,Menlo,Consolas,monospace;color:#cfe0ff}
     .embedBox{aspect-ratio:16/9;width:100%;background:#0f1627;border:1px solid rgba(255,255,255,.12);border-radius:12px;display:grid;place-items:center;overflow:hidden}
     .embedBox iframe{width:100%;height:100%;border:0}
+    .kpi{font-family:ui-monospace,Menlo,Consolas,monospace;color:#cfe0ff}
   </style>
 </head>
 <body>
-  <!-- Navegação por pontos -->
+  <!-- Pontinhos -->
   <div class="navdots">
     <div class="dot active" data-target="#proto" title="Protótipo"></div>
     <div class="dot" data-target="#spotify" title="Playlist do Spotify"></div>
@@ -74,7 +80,7 @@
       </div>
     </header>
 
-    <!-- SEÇÃO: Protótipo -->
+    <!-- PROTÓTIPO -->
     <section id="proto" class="card">
       <div class="hero"><h2 style="margin:0">Protótipo (player único)</h2></div>
 
@@ -93,6 +99,7 @@
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
         <button id="normalizeBtn" class="btn">Carregar e preparar trilhas</button>
+        <button id="binauralOnlyBtn" class="btn secondary">Ouvir Onda Agora</button>
         <span id="normStatus" class="muted"></span>
       </div>
       <div class="kpi" id="targetsView" style="margin-top:6px">B = −16.0 LUFS · Música = −61.0 LUFS</div>
@@ -124,6 +131,7 @@
       <p class="muted" style="margin-top:10px">
         Tempo: <span id="timeView">0.00</span>s · Estado: <span id="stateView">idle</span>
       </p>
+
       <p class="muted">Guia rápido:</p>
       <div class="grid">
         <div class="step"><div class="n">1</div><div>O arquivo <b>audio_binauralbeat.mp3</b> já está em <code>docs/assets/</code>.</div></div>
@@ -132,8 +140,8 @@
       </div>
     </section>
 
-    <!-- SEÇÃO: Spotify -->
-    <section id="spotify" class="card" style="margin-top:16px">
+    <!-- SPOTIFY -->
+    <section id="spotify" class="card">
       <h2 style="margin-top:0">Playlist do Spotify (embed + prévias 30s)</h2>
       <p class="muted">Cole a URL da playlist. Você pode <b>ver e ouvir</b> pelo player oficial abaixo. Para <b>importar as prévias (30s)</b> e misturar com a Onda, ative depois que publicar o backend.</p>
 
@@ -154,36 +162,38 @@
       <p class="muted" id="spHint">Dica: ‘Importar prévias (30s)’ fica desabilitado até você ligar o backend.</p>
     </section>
 
-    <!-- SEÇÃO: O que é o Projeto -->
-    <section id="sobre" class="card" style="margin-top:16px">
+    <!-- SOBRE -->
+    <section id="sobre" class="card">
       <h2 style="margin-top:0">O que é o Projeto Memo</h2>
       <p class="muted">
-        Iniciativa estudantil focada em investigação e prototipagem de estímulos auditivos (ondas binaurais) combinados a trilhas musicais,
-        com potencial de apoio a estudos de atenção e memória. Esta página demonstra o protótipo web.
+        O Projeto Memo investiga como <b>ondas binaurais</b> – estímulos sonoros com duas frequências ligeiramente diferentes em cada ouvido –
+        podem contribuir como intervenção <b>acessível, não invasiva e de baixo custo</b> para apoiar cuidados na Doença de Alzheimer.
+        Em testes iniciais com células H4, observamos indícios de redução na expressão de genes associados à DA (APP, BACE e MAPT).
+        Próximos passos incluem estudos com EEG em pacientes e o uso de IA para entender melhor os mecanismos envolvidos.
       </p>
     </section>
 
-    <!-- SEÇÃO: Patrocinadores -->
-    <section id="patro" class="card" style="margin-top:16px">
+    <!-- PATROCINADORES -->
+    <section id="patro" class="card">
       <h2 style="margin-top:0">Apoio e Patrocinadores</h2>
       <p class="muted">Obrigado a todos que apoiam o Projeto Memo.</p>
       <img src="assets/fotos/memo instituições de apoio.png" alt="Apoiadores" style="max-width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.1)" onerror="this.style.display='none'">
     </section>
 
-    <!-- SEÇÃO: Ondas Binaurais -->
-    <section id="binaural" class="card" style="margin-top:16px">
+    <!-- BINAURAL EXPLICACAO -->
+    <section id="binaural" class="card">
       <h2 style="margin-top:0">O que são Ondas Binaurais?</h2>
       <p class="muted">
-        Ondas binaurais são uma ilusão auditiva: cada ouvido recebe uma frequência ligeiramente diferente, e o cérebro percebe a diferença.
-        Dependendo da faixa (delta, theta, alpha, beta), estudos exploram efeitos como relaxamento ou foco. O uso deve ser consciente e opcional.
+        São uma ilusão auditiva: cada ouvido recebe uma frequência ligeiramente diferente e o cérebro percebe a diferença entre elas.
+        Diferentes faixas (delta, theta, alpha, beta) são estudadas por possíveis efeitos como relaxamento ou foco. O uso é opcional e consciente.
       </p>
     </section>
 
-    <!-- SEÇÃO: Galeria -->
-    <section id="galeria" class="card" style="margin-top:16px">
+    <!-- GALERIA -->
+    <section id="galeria" class="card">
       <h2 style="margin-top:0">Galeria</h2>
       <div class="gallery" id="gallery"></div>
-      <p class="muted">As imagens são carregadas de <code>docs/assets/fotos/</code>.</p>
+      <p class="muted">As imagens são carregadas de <code>docs/assets/fotos/</code>. O layout em colunas evita cortes e respeita a altura de cada foto.</p>
     </section>
 
     <footer>Feito com 💙 pelo Projeto Memo</footer>
@@ -195,19 +205,16 @@
 
   <script>
     // === CONFIGS ===
-    // API local por enquanto; depois troque para a URL pública da Render:
-    const API = "http://127.0.0.1:8000"; // ex.: "https://memo-backend.onrender.com"
-    // Quando publicar o backend, mude para true para habilitar "Importar prévias (30s)"
-    const BACKEND_READY = false;
-
-    // Alvos de loudness: B (Onda) = -16 LUFS; Música = B - 45 = -61 LUFS
-    const B_REF = -16.0, DELTA_DB = 45.0;
+    const API = "http://127.0.0.1:8000";           // troque pela URL da Render quando publicar
+    const BACKEND_READY = false;                    // mude para true quando publicar backend
+    const B_REF = -16.0, DELTA_DB = 45.0;          // alvos LUFS (B = -16; A = -61)
 
     // Elementos
     const els = {
       urlA: document.getElementById('urlA'),
       urlB: document.getElementById('urlB'),
       normalizeBtn: document.getElementById('normalizeBtn'),
+      binauralOnlyBtn: document.getElementById('binauralOnlyBtn'),
       normStatus: document.getElementById('normStatus'),
       playBtn: document.getElementById('playBtn'),
       pauseBtn: document.getElementById('pauseBtn'),
@@ -229,7 +236,7 @@
       spHint: document.getElementById('spHint'),
     };
 
-    // Estado inicial do botão de prévias
+    // estado do botão de prévias
     els.spImportBtn.disabled = !BACKEND_READY;
     if (!BACKEND_READY) els.spHint.innerHTML = "Para importar prévias de 30s, publique o backend e mude <code>BACKEND_READY = true</code> aqui no index.";
 
@@ -242,9 +249,10 @@
     function buildGraph(){
       ensureCtx();
       try{ srcA?.disconnect(); srcB?.disconnect(); gainA?.disconnect(); gainB?.disconnect(); comp?.disconnect(); }catch{}
-      srcA = ctx.createMediaElementSource(els.audioA);
-      srcB = ctx.createMediaElementSource(els.audioB);
-      gainA = ctx.createGain(); gainB = ctx.createGain();
+      if (!srcA) srcA = ctx.createMediaElementSource(els.audioA);
+      if (!srcB) srcB = ctx.createMediaElementSource(els.audioB);
+      if (!gainA) gainA = ctx.createGain();
+      if (!gainB) gainB = ctx.createGain();
       gainA.gain.value = els.toggles.A.classList.contains('on') ? 1 : 0;
       gainB.gain.value = els.toggles.B.classList.contains('on') ? 1 : 0;
       comp = ctx.createDynamicsCompressor();
@@ -279,7 +287,6 @@
       if(!urlA || !urlB){ showErr("Informe os dois links (.mp3/.wav)."); return; }
       const isYT = (u)=>/youtube\.com|youtu\.be/.test(u);
       if(isYT(urlA) || isYT(urlB)){ showErr("YouTube/Spotify completos não funcionam. Use link direto de áudio."); return; }
-
       els.normStatus.textContent = "Processando…";
       try{
         const [ra, rb] = await Promise.all([
@@ -296,17 +303,19 @@
         setState('erro');
       }
     }
+
     async function playAll(){ ensureCtx(); await ctx.resume?.(); els.audioA.play().catch(()=>{}); els.audioB.currentTime=els.audioA.currentTime; els.audioB.play().catch(()=>{}); setState('playing'); tick(); }
     function pauseAll(){ els.audioA.pause(); els.audioB.pause(); setState('paused'); }
     function stopAll(){ els.audioA.pause(); els.audioB.pause(); els.audioA.currentTime=0; els.audioB.currentTime=0; els.timeView.textContent='0.00'; setState('stopped'); }
     function seekAll(sec){ sec=Math.max(0,Number(sec)||0); els.audioA.currentTime=sec; els.audioB.currentTime=sec; }
+
+    // alternadores
     function toggle(el){ el.classList.toggle('on'); if(!ctx) return;
       if(el===els.toggles.A) gainA.gain.value = el.classList.contains('on')?1:0;
       if(el===els.toggles.B) gainB.gain.value = el.classList.contains('on')?1:0;
     }
 
-    // === Spotify ===
-    // converter URL de playlist para ID
+    // --- Spotify ---
     function parsePlaylistId(u){
       try{
         const url = new URL(u);
@@ -322,11 +331,6 @@
       if(!id){ els.spEmbed.src=""; alert("URL de playlist inválida."); return; }
       els.spEmbed.src = `https://open.spotify.com/embed/playlist/${id}?utm_source=generator`;
     }
-
-    // Endpoint futuro (quando BACKEND_READY=true):
-    // GET `${API}/spotify/playlist?url=<playlistURL>`
-    // Resposta esperada:
-    // { ok: true, tracks: [ {name, artists, preview_url} , ... ] }
     async function importSpotifyPreviews(){
       if (!BACKEND_READY){ alert("Ative depois de publicar o backend."); return; }
       const url = els.spUrl.value.trim();
@@ -335,10 +339,9 @@
       const r = await fetch(`${API}/spotify/playlist?url=${encodeURIComponent(url)}`);
       if (!r.ok){ els.spList.innerHTML = `<p class="err">Erro ao buscar prévias.</p>`; return; }
       const data = await r.json();
-      if (!data.tracks?.length){ els.spList.innerHTML = `<p class="muted">Nenhuma prévia (30s) encontrada nesta playlist.</p>`; return; }
-      // Renderiza lista com botões "Usar esta prévia como Música"
+      if (!data.tracks?.length){ els.spList.innerHTML = `<p class="muted">Nenhuma prévia (30s) encontrada.</p>`; return; }
       els.spList.innerHTML = "";
-      data.tracks.forEach((t,i)=>{
+      data.tracks.forEach((t)=>{
         const card = document.createElement('div');
         card.className = "card";
         const artists = (t.artists||[]).join(", ");
@@ -361,14 +364,19 @@
         btn.addEventListener('click', ()=>{
           const prev = btn.getAttribute('data-prev');
           if(!prev){ alert("Esta faixa não possui prévia."); return; }
-          els.urlA.value = prev; // usa a prévia como “Música”
-          window.scrollTo({top:document.querySelector("#proto").offsetTop-60, behavior:'smooth'});
+          els.urlA.value = prev; // usa a prévia como Música
+          document.querySelector('#proto').scrollIntoView({behavior:'smooth'});
         });
       });
     }
 
     // Eventos
     document.getElementById('normalizeBtn').addEventListener('click', normalizeBoth);
+    document.getElementById('binauralOnlyBtn').addEventListener('click', async ()=>{
+      els.audioB.src = els.urlB.value.trim() || "assets/audio_binauralbeat.mp3";
+      buildGraph();
+      try{ ensureCtx(); await ctx.resume?.(); await els.audioB.play(); setState('binaural-only'); }catch{}
+    });
     document.getElementById('playBtn').addEventListener('click', playAll);
     document.getElementById('pauseBtn').addEventListener('click', pauseAll);
     document.getElementById('stopBtn').addEventListener('click', stopAll);
@@ -378,7 +386,7 @@
     els.spShowBtn.addEventListener('click', showSpotifyEmbed);
     els.spImportBtn.addEventListener('click', importSpotifyPreviews);
 
-    // Navegação por pontos
+    // Pontinhos
     const dots = [...document.querySelectorAll('.dot')];
     dots.forEach(d=>d.addEventListener('click',()=>{
       document.querySelector(d.dataset.target)?.scrollIntoView({behavior:'smooth'});
@@ -392,7 +400,7 @@
     },{root:null,threshold:.4});
     document.querySelectorAll('section').forEach(s=>obs.observe(s));
 
-    // Galeria: arquivos + legendas
+    // Galeria (sem cortes, com legendas)
     const fotos = [
       {file:"memo apresentação no workshop inovaneuro.png", caption:"Apresentação no Workshop InovaNeuro"},
       {file:"memo febrace.png", caption:"Finalistas na FEBRACE"},
@@ -412,6 +420,13 @@
       img.onerror = ()=> fig.style.display='none';
       const cap = document.createElement('figcaption'); cap.textContent = caption;
       fig.appendChild(img); fig.appendChild(cap); gal.appendChild(fig);
+    });
+
+    // Pré-carregar a onda B para “um clique tocar”
+    window.addEventListener("load", ()=>{
+      els.audioB.src = els.urlB.value.trim() || "assets/audio_binauralbeat.mp3";
+      buildGraph();
+      // autoplay pode ser bloqueado; o botão "Ouvir Onda Agora" e o "Play" resolvem com um toque
     });
   </script>
 </body>
